@@ -1,0 +1,52 @@
+usePlugin 'java'
+usePlugin 'groovy'
+usePlugin 'maven'
+
+group = 'clojuresque'
+version = '1.3.0-SNAPSHOT'
+
+configurations {
+    clojarsDeployerJars {
+        visible = false
+        description = 'Private configuration to hold ssh wagon dependencies'
+    }
+}
+
+repositories {
+    flatDir name: 'gradle', dirs: new File(System.getenv('GRADLE_HOME') + '/lib')
+    mavenCentral()
+}
+
+dependencies {
+    groovy 'org.clojure:clojure:1.0.0'
+
+    groovy name: 'groovy', version: '1.6.4'
+    groovy name: 'gradle-core', version: '0.8'
+    groovy name: 'asm-all', version: '2.2.3'
+    groovy name: 'slf4j-api', version:'1.5.3'
+    groovy name: 'logback-core', version:'0.9.9'
+    groovy name: 'logback-classic', version:'0.9.9'
+    groovy name: 'antlr', version:'2.7.7'
+    groovy name: 'ant', version:'1.7.0'
+    groovy name: 'ivy', version:'2.1.0-rc2'
+
+    clojarsDeployerJars 'org.apache.ant:ant-jsch:1.7.0'
+}
+
+ant.taskdef name: 'clojarsScpDeploy', classname: 'org.apache.tools.ant.taskdefs.optional.ssh.Scp', classpath: configurations.clojarsDeployerJars.asPath
+
+File dummyRepo = new File(project.buildDir, 'deploy')
+
+uploadArchives {
+    repositories.mavenDeployer {
+        name = 'dummyClojarsLocalDeployer'
+        description  = 'Dummy deployer to trick gradle into pom generation'
+        repository(url: 'file://' + dummyRepo.path)
+    }
+}
+
+uploadArchives.doLast {
+    ant.clojarsScpDeploy(todir: 'clojars@clojars.org:', keyfile: new File(project.clojarsKeyfile).absolutePath, passphrase: project.clojarsPassphrase) {
+        fileset(dir: dummyRepo, excludes: '**/maven-metadata.xml*')
+    }
+}
