@@ -26,18 +26,14 @@ the [Clojure][] jar must be available also to the Java portion of the project.
 
 ## Caveats
 
-* Sitting between the chairs of [Clojure][clj]'s namespace based and the
-  other languages file based compilation, you have to include or exclude
-  namespaces based on filenames for now.
-
 * Automatic recognition of namespaces only works if the `ns` form is the
   first in the file. Comments may precede the form. The symbol is allowed
   to be fully qualified: `clojure.core/ns`.
 
-* In order for the scp deployment of [Clojars][cr] to work, you have to
-  replace the jsch jar in `${{GRADLE_HOME}/lib` with jsch-0.1.29.jar.
-  Otherwise the transfer might hang.  See this [ant bug][antbug] for more
-  information.
+* [Clojars][cr] deployment is currently broken, because the clojars server
+  does not like a single Java implementation of ssh. With other servers like
+  the „real“ ssh it works quite well, though. I suspect the issue to be on
+  the clojars side.
 
 ## Usage
 
@@ -103,31 +99,49 @@ the following line to `${GRADLE_HOME}/plugin.properties`:
 From now on you can skip the whole `buildscript` stuff and just use
 `usePlugin('clojure')` to load the plugin.
 
+## Filter
+
+In the filesets you can specify filters with `include` resp. `exclude`.
+This is fine for mostly file based languages. However clojure is strongly
+based on namespaces. Therefor the clojure part of the source sets support
+also `includeNamespace` and `excludeNamespace` which can be used to filter
+on the namespace name. Eg. to exclude examples from the final jar one
+could use
+
+    sourceSets.main.clojure {
+        excludeNamespace 'my.project.examples.**.*'
+    }
+
 ## Clojars Deployment
 
-Additional to configuration of the `Upload` tasks with `configureClojarsDeploy`
-you also have to specify the location of the keyfile and the passphrase you
-use to access [Clojars][cr]. This can be done independent of the projects
-in a file called `${HOME}/.gradle/gradle.properties`.
+**Note: Does work only on Unix/Mac OS via shell out to scp. Does not
+work on Windows! Make sure you have an agent running which handles your
+clojars key.**
 
-    clojarsKeyfile = /Users/mb/.ssh/id_dsa
-    clojarsPassphrase = My super secret passphrase
+## Überjars
 
-**Be sure to correctly secure this file! Or your key might be compromised!**
+As Leiningen, Clojuresque now supports überjars. That means you can enable
+the `ueberjar` task with
+
+    ueberjar.enabled = true
+
+Then invoking `gradle ueberjar` will create a jar file with all runtime
+dependencies included.
 
 ## Issues
 
 This is **alpha** software! Expect problems! Please report issues in the
-bugtracker at [bitbucket in the 'Issues' tab][cg].
+bugtracker at [the lighthouse tracker][lh]. Or email them to me.
 
 -- 
 Meikel Brandmeyer <mb@kotka.de>
-Frankfurt am Main, December 2009
+Frankfurt am Main, January 2010
 
 [Gradle]: http://www.gradle.org
 [Groovy]: http://groovy.codehaus.org
 [clj]:    http://clojure.org
 [cg]:     http://bitbucket.org/kotarak/clojuresque
+[lh]:     http://kotka.lighthouseapp.com/projects/45093-clojuresque/overview
 [cr]:     http://clojars.org
 [hudson]: http://build.clojure.org
 [antbug]: https://issues.apache.org/bugzilla/show_bug.cgi?id=41090
