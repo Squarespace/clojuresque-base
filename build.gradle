@@ -1,0 +1,55 @@
+subprojects {
+    group = 'clojuresque'
+    version = '1.5.0-SNAPSHOT'
+}
+
+project(':clojuresque') {
+    apply {
+        plugin 'groovy'
+        plugin 'maven'
+    }
+
+    dependencies {
+        compile gradleApi()
+        groovy localGroovy()
+    }
+
+    processResources {
+        from(sourceSets.main.resources.srcDirs) {
+            expand("version": project.version)
+        }
+    }
+}
+
+project(':runtime') {
+    apply plugin: 'java'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compile 'org.clojure:clojure:1.+'
+    }
+}
+
+subprojects {
+    uploadArchives.doLast {
+        if (!project.version.endsWith("-SNAPSHOT")) {
+            String pomName = project.buildDirName + "/" + project.pomDirName + "/" +
+                project.name + "-" + project.version + ".xml"
+
+            project.pom().writeTo(pomName)
+
+            project.exec {
+                commandLine(
+                    '/usr/bin/scp',
+                    project.file(project.tasks.jar.archivePath).path,
+                    project.file(pomName).path,
+                    'clojars@clojars.org:'
+                )
+            }
+        }
+    }
+}
+
