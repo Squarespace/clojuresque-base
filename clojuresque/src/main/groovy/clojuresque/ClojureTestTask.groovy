@@ -25,6 +25,7 @@ package clojuresque
 
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.SourceDirectorySet
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 
 import java.io.File
@@ -34,10 +35,19 @@ import groovy.lang.Closure
 
 public class ClojureTestTask extends ClojureSourceTask {
     def File classesDir
-    def FileCollection testClasspath
+    def FileCollection classpath
     def SourceDirectorySet testRoots
     def Closure jvmOptions = {}
     def List<String> tests = []
+
+    @InputFiles
+    public FileCollection getTestClasspath() {
+        return this.classpath
+    }
+
+    public void classpath(Object... coll) {
+        classpath.from(coll)
+    }
 
     @TaskAction
     public void runTests() {
@@ -46,7 +56,7 @@ public class ClojureTestTask extends ClojureSourceTask {
             classpath = project.files(
                 this.testRoots.srcDirs,
                 this.classesDir,
-                this.testClasspath
+                this.classpath
             )
             if (tests.size() == 0) {
                 main = "clojuresque.tasks.test/test-namespaces"

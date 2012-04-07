@@ -1,5 +1,5 @@
 /*-
- * Copyright 2009,2010 © Meikel Brandmeyer.
+ * Copyright 2011 © Meikel Brandmeyer.
  * All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -35,7 +35,7 @@ import java.io.InputStream
 
 import groovy.lang.Closure
 
-public class ClojureCompileTask extends ClojureSourceTask {
+public class ClojureDocTask extends ClojureSourceTask {
     def File destinationDir
     def FileCollection classpath
     def SourceDirectorySet clojureRoots
@@ -56,40 +56,24 @@ public class ClojureCompileTask extends ClojureSourceTask {
     }
 
     @TaskAction
-    public void compile() {
+    public void clojuredoc() {
         if (destinationDir == null) {
             throw new StopExecutionException("destinationDir not set!")
         }
-        destinationDir.mkdirs()
-
-        List<String> options = []
-        if (project.aotCompile) {
-            options.add("--compile")
-        } else {
-            options.add("--require")
-        }
-        if (project.warnOnReflection) {
-            options.add("--warn-on-reflection")
-        }
-
 
         project.clojureexec {
             this.jvmOptions()
-            systemProperties "clojure.compile.path": this.destinationDir.path
             classpath = project.files(
                 this.clojureRoots.srcDirs,
-                this.destinationDir,
                 this.classpath
             )
-            main = "clojuresque.tasks.compile/main"
-            args = options + this.source.files
-        }
-
-        if (!project.aotCompile) {
-            project.copy {
-                from this.source
-                into this.destinationDir
-            }
+            main = "clojuresque.tasks.doc/main"
+            args = [
+                "-d", this.destinationDir.path,
+                "-n", this.project.name ?: "",
+                "-D", this.project.description ?: "",
+                "-v", this.project.version ?: ""
+            ] + this.source*.path
         }
     }
 }
