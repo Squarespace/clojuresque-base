@@ -1,0 +1,62 @@
+subprojects {
+    group = 'clojuresque'
+    version = '1.6.0-SNAPSHOT'
+}
+
+project(':clojuresque') {
+    apply {
+        plugin 'groovy'
+        plugin 'maven'
+    }
+
+    dependencies {
+        compile gradleApi()
+        // Workaround for milestone4
+        compile fileTree(dir: "${gradle.gradleHomeDir}/lib/plugins", include: '**/*.jar')
+        groovy localGroovy()
+    }
+
+    processResources {
+        from(sourceSets.main.resources.srcDirs) {
+            expand("version": project.version)
+        }
+    }
+}
+
+project(':runtime') {
+    apply {
+        plugin 'java'
+        plugin 'maven'
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compile 'org.clojure:clojure:[1.2,1.4)'
+    }
+}
+
+subprojects {
+    uploadArchives.doLast {
+        String pomFile = project.buildDir.path + "/" +
+            project.mavenPomDir.name + "/" +
+            project.name + "-" + project.version + ".xml"
+
+        project.pom().writeTo(pomFile)
+
+        project.exec {
+            commandLine(
+                '/usr/bin/scp',
+                pomFile,
+                project.jar.archivePath.path,
+                'clojars@clojars.org:'
+            )
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "1.0"
+}
