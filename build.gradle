@@ -1,6 +1,6 @@
 subprojects {
     group = 'clojuresque'
-    version = '1.5.2'
+    version = '1.6.0-SNAPSHOT'
 }
 
 project(':clojuresque') {
@@ -23,7 +23,7 @@ project(':clojuresque') {
     }
 }
 
-project(':runtime') {
+project(':clojuresque-runtime') {
     apply {
         plugin 'java'
         plugin 'maven'
@@ -38,8 +38,44 @@ project(':runtime') {
     }
 }
 
+project(':scriptoresque') {
+    apply {
+        plugin 'groovy'
+        plugin 'maven'
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compile gradleApi()
+        // Workaround for milestone4
+        compile fileTree(dir: "${gradle.gradleHomeDir}/lib/plugins", include: '**/*.jar')
+        compile project(':clojuresque')
+
+        groovy localGroovy()
+    }
+}
+
+project(':scriptoresque-runtime') {
+    apply {
+        plugin 'java'
+        plugin 'maven'
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compile project(':clojuresque-runtime')
+    }
+}
+
 subprojects {
     ext.pomFile = project.buildDir.path + "/" +
+
             project.mavenPomDir.name + "/" +
             project.name + "-" + project.version + ".xml"
 
