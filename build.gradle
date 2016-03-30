@@ -6,7 +6,6 @@ task wrapper(type: Wrapper) {
   gradleVersion = '2.12'
 }
 
-apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'maven-publish'
 
