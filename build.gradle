@@ -20,6 +20,8 @@ repositories {
   }
   
   mavenCentral()
+  jcenter()
+  
   maven { url "http://clojars.org/repo" }
 }
 
