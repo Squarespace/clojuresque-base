@@ -20,6 +20,7 @@ import clojuresque.tasks.ClojureUploadConvention
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.internal.file.collections.DirectoryFileTreeFactory
 import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.Upload
@@ -51,8 +52,9 @@ public class ClojureBasePlugin implements Plugin<Project> {
         ProjectInternal projectInternal = (ProjectInternal)project
 
         project.sourceSets.all { sourceSet ->
-             def clojureSourceSet =
-                new ClojureSourceSet(sourceSet.name, projectInternal.fileResolver)
+            def clojureSourceSet =
+                new ClojureSourceSet(sourceSet.name, projectInternal.fileResolver,
+                  projectInternal.services.get(DirectoryFileTreeFactory.class))
 
             sourceSet.convention.plugins.clojure = clojureSourceSet
             sourceSet.clojure.srcDir "src/${sourceSet.name}/clojure"

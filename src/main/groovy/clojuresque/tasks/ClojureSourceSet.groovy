@@ -17,7 +17,7 @@ import kotka.gradle.utils.tasks.GenericSourceSet
 
 @GenericSourceSet(sourceName="clojure", sourcePatterns=["**/*.clj"])
 class ClojureSourceSet {
-    def protected initSourceSet(displayString, fileResolver) {
-        new ClojureSourceDirectorySet(displayString, fileResolver)
+    def protected initSourceSet(displayString, fileResolver, directoryFileTreeFactory) {
+        new ClojureSourceDirectorySet(displayString, fileResolver, directoryFileTreeFactory)
     }
 }
