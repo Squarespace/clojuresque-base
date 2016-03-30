@@ -13,11 +13,14 @@ apply plugin: 'maven-publish'
 group = 'de.kotka.clojuresque'
 
 repositories {
+  mavenLocal()
+  
   maven {
     url RELEASE_REPOSITORY_URL
   }
   
-  mavenLocal()
+  mavenCentral()
+  maven { url "http://clojars.org/repo" }
 }
 
 ext.clojuresquePlugins = [
