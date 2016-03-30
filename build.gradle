@@ -8,17 +8,18 @@ apply plugin: 'java'
 apply plugin: 'groovy'
 
 group = 'de.kotka.clojuresque'
-version = '2.0.0'
+version = '2.0.1-SNAPSHOT'
 description = "A Clojure plugin for gradle (base)"
 
 kotka {
-    wrapperVersion = "2.7"
+    wrapperVersion = "2.12"
     licenses   = [ "EUPL-1.1", "MIT" ]
     repository = "clojuresque/base"
     bintray    = [ repo: "clojuresque" ]
 }
 
 repositories {
+    mavenLocal()
     jcenter()
 }
 
@@ -33,7 +34,7 @@ dependencies {
     project.clojuresquePlugins.each { plugin, version ->
         compile "de.kotka.clojuresque:clojuresque-${plugin}:${version}"
     }
-    compile "de.kotka.gradle:gradle-utils:0.2.2"
+    compile "de.kotka.gradle:gradle-utils:0.2.3-SNAPSHOT"
     compile "org.clojure:clojure:1.7.0"
     compile "org.clojure:tools.namespace:0.2.11"
 
